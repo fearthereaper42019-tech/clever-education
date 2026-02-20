@@ -5,7 +5,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { Search, Globe, MessageSquare, Video, Music, Gamepad2, Sparkles, Home, Bot, Youtube, Twitter, Twitch, Instagram, Github, Grid3X3, Bird, Ghost, LayoutGrid, Box, TrendingDown, Plus, X, Settings, ArrowLeft, ArrowRight, RotateCw, Code, ShieldAlert, EyeOff, Keyboard } from 'lucide-react';
+import { Search, Globe, MessageSquare, Video, Music, Gamepad2, Sparkles, Home, Bot, Youtube, Twitter, Twitch, Instagram, Github, Grid3X3, Bird, Ghost, LayoutGrid, Box, TrendingDown, Plus, X, Settings, ArrowLeft, ArrowRight, RotateCw, Code, ShieldAlert, EyeOff, Keyboard, ExternalLink } from 'lucide-react';
 import Starfield from './components/Starfield';
 import { GoogleGenAI } from '@google/genai';
 
@@ -294,6 +294,13 @@ export default function App() {
               title="Reload"
             >
               <RotateCw className="w-5 h-5" />
+            </button>
+            <button 
+              onClick={() => window.open(activeUrl, '_blank')}
+              className="p-2 hover:bg-zinc-800 rounded-lg text-zinc-400 hover:text-white transition-colors"
+              title="Open in New Tab (Fixes Blocked Sites)"
+            >
+              <ExternalLink className="w-5 h-5" />
             </button>
           </div>
 
