@@ -132,7 +132,36 @@ export default function App() {
   const [panicUrl, setPanicUrl] = useState<string>('https://google.com');
   const [panicKey, setPanicKey] = useState<string>('`');
   const [isBinding, setIsBinding] = useState(false);
+  const [isUvReady, setIsUvReady] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
+
+  useEffect(() => {
+    // Register Scramjet Service Worker
+    // @ts-ignore
+    if (typeof window.registerSW === 'function') {
+      // @ts-ignore
+      window.registerSW().then(() => {
+        console.log('Scramjet Service Worker registered');
+        setIsUvReady(true);
+      }).catch((err: any) => {
+        console.error('Scramjet Service Worker registration failed:', err);
+      });
+    }
+  }, []);
+
+  const encodeUrl = (url: string) => {
+    if (!url) return '';
+    try {
+      // @ts-ignore
+      if (typeof window.search === 'function') {
+        // @ts-ignore
+        return window.search(url, 'https://www.google.com/search?q=%s');
+      }
+    } catch (e) {
+      console.error('Encoding failed', e);
+    }
+    return url;
+  };
 
   useEffect(() => {
     const cloak = CLOAKS[cloakType] || CLOAKS.none;
@@ -174,7 +203,7 @@ export default function App() {
     if (!url.startsWith('http://') && !url.startsWith('https://')) {
       url = 'https://' + url;
     }
-    setActiveUrl(url);
+    setActiveUrl(encodeUrl(url));
   };
 
   const injectEruda = () => {
@@ -232,19 +261,26 @@ export default function App() {
     e.preventDefault();
     if (!searchQuery.trim()) return;
     
-    let url = searchQuery.trim();
-    if (!url.startsWith('http://') && !url.startsWith('https://')) {
-      if (url.includes('.') && !url.includes(' ')) {
-        url = 'https://' + url;
-      } else {
-        url = 'https://www.google.com/search?q=' + encodeURIComponent(url) + '&igu=1';
+    // @ts-ignore
+    if (typeof window.search === 'function') {
+      // @ts-ignore
+      const url = window.search(searchQuery.trim(), 'https://www.google.com/search?q=%s');
+      setActiveUrl(url);
+    } else {
+      let url = searchQuery.trim();
+      if (!url.startsWith('http://') && !url.startsWith('https://')) {
+        if (url.includes('.') && !url.includes(' ')) {
+          url = 'https://' + url;
+        } else {
+          url = 'https://www.google.com/search?q=' + encodeURIComponent(url);
+        }
       }
+      setActiveUrl(url);
     }
-    setActiveUrl(url);
   };
 
   const openApp = (url: string) => {
-    setActiveUrl(url);
+    setActiveUrl(encodeUrl(url));
   };
 
   const handleAddApp = (e: React.FormEvent) => {
